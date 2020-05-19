@@ -87,8 +87,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         MimeMessage message = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setTo(recipientAddress);
-        helper.setText("Hii " + user.getFirst_name() + "\n" + " You have requested to reset password\n" +
-                "http://localhost:8084/resetpassword?json={%22password%22:%22" + null + "%22+,%22token%22:" + token + "}");
+        helper.setText("Hello " + user.getFirst_name() + "\n" + " You have requested to reset password\n" +
+                "http://localhost:8084/resetpassword?json" + null + "token is:" + token + "}");
         helper.setSubject("Password_Reset_Request");
         sender.send(message);
     }
