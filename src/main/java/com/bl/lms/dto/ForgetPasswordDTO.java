@@ -1,8 +1,12 @@
 package com.bl.lms.dto;
 
+
+import javax.validation.constraints.Pattern;
+
 public class ForgetPasswordDTO {
 
     private String email;
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]*.{8,}$")
     private String password;
     private String token;
 
