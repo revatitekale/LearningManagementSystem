@@ -1,39 +1,55 @@
 package com.bl.lms.service;
 
+import com.bl.lms.dto.Response;
+import com.bl.lms.dto.UserDTO;
 import com.bl.lms.model.User;
 import com.bl.lms.repository.UserRepository;
 import com.bl.lms.util.JwtToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
-import java.util.Date;
-import java.util.Properties;
+import java.time.LocalDateTime;
 
 @Service
-@Component("forgetPasswordService")
-public class ForgetPasswordService {
+@Component("userService")
+public class UserServiceImpl {
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private JwtToken jwtToken;
+    private PasswordEncoder bcryptEncoder;
 
     @Autowired
-    private PasswordEncoder bcryptEncoder;
+    private ModelMapper modelMapper;
+
+    @Autowired
+    private JwtToken jwtToken;
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private JavaMailSender sender;
+
+    @Override
+    public Response save(UserDTO user) {
+        user.setCreator_stamp(LocalDateTime.now());
+        user.setCreator_user(user.getFirst_name());
+        user.setVerified("yes");
+        user.setPassword(bcryptEncoder.encode(user.getPassword()));
+        User newUser = modelMapper.map(user, User.class);
+        userRepository.save(newUser);
+        return new Response(200, "Register successfull");
+    }
 
     public boolean resetPassword(String password, String token) {
 
@@ -56,7 +72,7 @@ public class ForgetPasswordService {
         MimeMessage message = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setTo(recipientAddress);
-        helper.setText("Hii " + user.getFirst_name() + "\n" + " You requested to reset password\n" +
+        helper.setText("Hii " + user.getFirst_name() + "\n" + " You have requested to reset password\n" +
                 "http://localhost:8084/reset_password?json={%22password%22:%22" + null + "%22+,%22token%22:" + token + "}");
         helper.setSubject("Password-Reset-Request");
         sender.send(message);

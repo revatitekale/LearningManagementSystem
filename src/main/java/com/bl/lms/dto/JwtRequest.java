@@ -1,16 +1,16 @@
 package com.bl.lms.dto;
 
-public class RequestJwt {
+public class LoginDTO {
     private static final long serialVersionUID = 5926468583005150707L;
 
     private String username;
     private String password;
 
     //Default constructor for JSON Parsing
-    public RequestJwt() {
+    public LoginDTO() {
     }
 
-    public RequestJwt(String username, String password) {
+    public LoginDTO(String username, String password) {
         this.setUsername(username);
         this.setPassword(password);
     }
