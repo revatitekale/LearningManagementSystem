@@ -3,6 +3,7 @@ package com.bl.lms.dto;
 import java.time.LocalDateTime;
 
 public class UserDTO {
+
     private String first_name;
     private String last_name;
     private String email;

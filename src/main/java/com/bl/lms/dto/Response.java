@@ -1,10 +1,11 @@
 package com.bl.lms.dto;
 
-public class LoginResponse {
+public class Response {
+
     int status;
     String message;
 
-    public LoginResponse(int status, String message) {
+    public Response(int status, String message) {
         this.status = status;
         this.message = message;
     }
