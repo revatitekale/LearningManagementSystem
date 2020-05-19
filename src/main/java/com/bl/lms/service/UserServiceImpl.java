@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 @Service
 @Component("userService")
-public class UserService implements UserDetailsService {
+public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -54,6 +54,7 @@ public class UserService implements UserDetailsService {
                 new ArrayList<>());
     }
 
+    @Override
     public Response register(UserDTO user) {
         user.setCreator_stamp(LocalDateTime.now());
         user.setCreator_user(user.getFirst_name());
@@ -64,6 +65,7 @@ public class UserService implements UserDetailsService {
         return new Response(200, "Register successfull");
     }
 
+    @Override
     public boolean resetPassword(String password, String token) {
 
         String encodedPassword = bcryptEncoder.encode(password);
@@ -79,6 +81,7 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
+    @Override
     public void sentEmail(User user, String token) throws MessagingException {
         String recipientAddress = user.getEmail();
         MimeMessage message = sender.createMimeMessage();
