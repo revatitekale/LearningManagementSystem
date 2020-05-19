@@ -1,6 +1,6 @@
 package com.bl.lms.filter;
 
-import com.bl.lms.service.JwtUserService;
+import com.bl.lms.service.UserService;
 import com.bl.lms.util.JwtToken;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.io.IOException;
 @Component("jwtFilter")
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired
-    private JwtUserService jwtUserService;
+    private UserService jwtUserService;
 
     @Autowired
     private JwtToken jwtTokenUtil;
