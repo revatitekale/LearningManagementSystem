@@ -7,6 +7,9 @@ import com.bl.lms.repository.UserRepository;
 import com.bl.lms.util.JwtToken;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -17,10 +20,11 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Service
 @Component("userService")
-public class UserServiceImpl {
+public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -35,13 +39,22 @@ public class UserServiceImpl {
     private JwtToken jwtToken;
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private JavaMailSender sender;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Override
-    public Response save(UserDTO user) {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByFirstName(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username + "User not found");
+        }
+        return new org.springframework.security.core.userdetails.User(user.getFirst_name(), user.getPassword(),
+                new ArrayList<>());
+    }
+
+    public Response register(UserDTO user) {
         user.setCreator_stamp(LocalDateTime.now());
         user.setCreator_user(user.getFirst_name());
         user.setVerified("yes");
@@ -58,7 +71,6 @@ public class UserServiceImpl {
             return false;
         }
         long id = Long.parseLong(jwtToken.getUsernameFromToken(token));
-
         User user = entityManager.find(User.class, id);
         user.setPassword(encodedPassword);
         User updatedUser = userRepository.save(user);
