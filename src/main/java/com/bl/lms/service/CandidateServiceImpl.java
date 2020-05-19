@@ -33,9 +33,9 @@ public class CandidateServiceImpl implements CandidateService {
 
         List sheetData = new ArrayList();
 
-        try (FileInputStream fis = new FileInputStream(filePath)) {
+        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
 
-            XSSFWorkbook workbook = new XSSFWorkbook(fis);
+            XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
             XSSFSheet sheet = workbook.getSheetAt(0);
             Iterator rows = sheet.rowIterator();
             while (rows.hasNext()) {
@@ -57,44 +57,44 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public void saveCandidateDetails(List sheetData) {
         XSSFCell cell;
-        for (int i = 1; i < sheetData.size(); i++) {
-            int j = 0;
-            List list = (List) sheetData.get(i);
-            cell = (XSSFCell) list.get(j++);
+        for (int row = 1; row < sheetData.size(); row++) {
+            int coloumn = 0;
+            List list = (List) sheetData.get(row);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setId((long) cell.getNumericCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setFirst_name(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setMiddle_name(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setLast_name(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setEmail(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setHired_city(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setDegree(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setHired_date(cell.getDateCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setMobile_number((long) cell.getNumericCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setPermanent_pincode((long) cell.getNumericCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setHired_lab(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setAttitude(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setCommunication_remark(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setKnowledge_remark(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setAggregate_remark(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setStatus(cell.getStringCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setCreator_stamp(cell.getDateCellValue());
-            cell = (XSSFCell) list.get(j++);
+            cell = (XSSFCell) list.get(coloumn++);
             candidateDTO.setCreator_user(cell.getStringCellValue());
             Candidate candidateModel = modelMapper.map(candidateDTO, Candidate.class);
             candidateRepository.save(candidateModel);
@@ -108,8 +108,8 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     public Candidate findByFirst_name(String name) {
-        Candidate hiredCandidateModel = candidateRepository.findByFirst_name(name);
-        return hiredCandidateModel;
+        Candidate candidateModel = candidateRepository.findByFirst_name(name);
+        return candidateModel;
     }
 }
 

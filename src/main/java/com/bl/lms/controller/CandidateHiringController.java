@@ -11,15 +11,14 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("candidatehiring")
+@RequestMapping("/candidatehiring")
 public class CandidateHiringController {
 
     @Autowired
     CandidateServiceImpl candidateService;
 
-    @PostMapping("/importcandidate")
-    public Response addHiredCandidate() throws IOException {
-        String filePath = "C:\\Users\\Revati Tekale\\Documents\\hired_candidate.xlsx";
+    @PostMapping("/importcandidates")
+    public Response addHiredCandidate(@RequestParam(value = "filePath") String filePath) throws IOException {
         List hiredCandidate = candidateService.getHiredCandidate(filePath);
         candidateService.saveCandidateDetails(hiredCandidate);
         return new Response(200, "Successfully Added");

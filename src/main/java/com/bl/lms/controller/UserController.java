@@ -18,7 +18,7 @@ import javax.mail.MessagingException;
 
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -33,17 +33,17 @@ public class UserController {
     @Autowired
     UserServiceImpl jwtUserServiceImpl;
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @PostMapping("/register")
     public ResponseEntity<?> saveUser(@RequestBody UserDTO user) throws Exception {
         return ResponseEntity.ok(jwtUserServiceImpl.register(user));
     }
 
-    @RequestMapping({"/login"})
+    @GetMapping("/login")
     public String login() {
         return "Login successFull";
     }
 
-    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+    @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
@@ -67,10 +67,9 @@ public class UserController {
     }
 
     @PostMapping("/forgetpassword")
-    public Response requestResetPassword(@RequestBody ForgetPasswordDTO passwordRequestModel) throws MessagingException {
-        User user = userRepository.findByEmail(passwordRequestModel.getEmail());
+    public Response requestResetPassword(@RequestBody ForgetPasswordDTO passwordRequest) throws MessagingException {
+        User user = userRepository.findByEmail(passwordRequest.getEmail());
         final String token = jwtTokenUtil.generatePasswordResetToken(String.valueOf(user.getId()));
-        System.out.println("token");
         jwtUserServiceImpl.sentEmail(user, token);
         return new Response(200, "Email sent successfully");
     }

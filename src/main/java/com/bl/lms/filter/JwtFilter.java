@@ -1,6 +1,6 @@
 package com.bl.lms.filter;
 
-import com.bl.lms.service.UserService;
+import com.bl.lms.service.UserServiceImpl;
 import com.bl.lms.util.JwtToken;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.io.IOException;
 @Component("jwtFilter")
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired
-    private UserService jwtUserService;
+    private UserServiceImpl jwtUserServiceImpl;
 
     @Autowired
     private JwtToken jwtTokenUtil;
@@ -47,9 +47,9 @@ public class JwtFilter extends OncePerRequestFilter {
             logger.warn("JWT Token does not begin with Bearer String");
         }
 
-        // Once we get the token validate it.
+        // Token validation.
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.jwtUserService.loadUserByUsername(username);
+            UserDetails userDetails = this.jwtUserServiceImpl.loadUserByUsername(username);
             // if token is valid configure Spring Security to manually set authentication
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
@@ -61,4 +61,8 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
+
 }
+
+
+
