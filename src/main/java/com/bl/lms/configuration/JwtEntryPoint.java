@@ -14,6 +14,7 @@ public class JwtEntryPoint implements AuthenticationEntryPoint, Serializable {
 
     private static final long serialVersionUID = -7858869558953243875L;
 
+    //SEND ERROR WHEN USER DO NOT SUPPLY ANY CREDENTIALS
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {

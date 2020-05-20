@@ -1,6 +1,6 @@
 package com.bl.lms.dto;
 
-public class CandidateProfileRequest {
+public class CandidateProfileRequestDTO {
 
     private String first_name;
 

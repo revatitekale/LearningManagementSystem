@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public interface CandidateService {
+public interface ICandidateService {
 
     List getHiredCandidate(String filePath) throws IOException;
 
@@ -15,5 +15,5 @@ public interface CandidateService {
 
     List getHiredCandidates();
 
-    Candidate findByfirstName(String name);
+    Candidate findByFirstName(String name);
 }

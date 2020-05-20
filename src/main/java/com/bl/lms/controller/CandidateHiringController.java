@@ -1,9 +1,10 @@
 package com.bl.lms.controller;
 
-import com.bl.lms.dto.CandidateProfileRequest;
+import com.bl.lms.dto.CandidateProfileRequestDTO;
 import com.bl.lms.dto.Response;
 import com.bl.lms.model.Candidate;
 import com.bl.lms.service.CandidateServiceImpl;
+import com.bl.lms.service.ICandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class CandidateHiringController {
 
     @Autowired
-    CandidateServiceImpl candidateService;
+    ICandidateService candidateService;
 
     @PostMapping("/importcandidates")
     public Response addHiredCandidate(@RequestParam(value = "filePath") String filePath) throws IOException {
@@ -30,7 +31,7 @@ public class CandidateHiringController {
     }
 
     @GetMapping("/showprofile")
-    public Candidate showCandidateProfile(@RequestBody CandidateProfileRequest viewProfileRequest) throws IOException {
-        return candidateService.findByfirstName(viewProfileRequest.getFirst_name());
+    public Candidate showCandidateProfile(@RequestBody CandidateProfileRequestDTO viewProfileRequest) throws IOException {
+        return candidateService.findByFirstName(viewProfileRequest.getFirst_name());
     }
 }

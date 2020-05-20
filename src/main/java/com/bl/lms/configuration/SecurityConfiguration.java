@@ -48,6 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    //GIVE PERMISSION TO ALL END POINTS OF CONTROLLER
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
@@ -57,10 +58,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 anyRequest().authenticated().and().
                 exceptionHandling().authenticationEntryPoint(jwtEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        // Add a filter to validate the tokens with every request
+        //ADD A FILTER TO VALIDATE TOKEN AFTER EACH REQUEST
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
+    //BEAN FOR MODEL MAPPER
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();

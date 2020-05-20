@@ -18,6 +18,7 @@ public class User {
     private LocalDateTime creator_stamp;
     private String creator_user;
 
+    //GETTERS AND SETTERS
     public long getId() {
         return id;
     }

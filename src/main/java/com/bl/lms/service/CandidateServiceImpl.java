@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class CandidateServiceImpl implements CandidateService {
+public class CandidateServiceImpl implements ICandidateService {
 
     @Autowired
     CandidateRepository candidateRepository;
@@ -28,6 +28,7 @@ public class CandidateServiceImpl implements CandidateService {
 
     CandidateDTO candidateDTO = new CandidateDTO();
 
+    //READ DATA FROM EXCELSHEET
     @Override
     public List getHiredCandidate(String filePath) throws IOException {
 
@@ -54,6 +55,7 @@ public class CandidateServiceImpl implements CandidateService {
         return sheetData;
     }
 
+    //SAVE HIRE CANDIDATE DETAILS
     @Override
     public void saveCandidateDetails(List sheetData) {
         XSSFCell cell;
@@ -106,8 +108,9 @@ public class CandidateServiceImpl implements CandidateService {
         return candidateRepository.findAll();
     }
 
+    //FIND CANDIDATE BY FIRST NAME
     @Override
-    public Candidate findByfirstName(String name) {
+    public Candidate findByFirstName(String name) {
         Candidate candidateModel = candidateRepository.findByFirst_name(name);
         return candidateModel;
     }

@@ -26,12 +26,12 @@ public class JwtToken implements Serializable {
     @Value("${jwt.secret}")
     private String secret;
 
-    //Get username from token
+    //GET USERNAME FROM TOKEN
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
-    //Get expiration date from token
+    //GET EXPIRATION DATE FROM TOKEN
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
@@ -41,37 +41,36 @@ public class JwtToken implements Serializable {
         return claimsResolver.apply(claims);
     }
 
-    //Secret key to get information from token
+    //SECRET KEY TO GET INFORMATION FROM TOKEN
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
-    //Check token is expired or not
+    //CHECK TOKEN EXPIRATION
     public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
 
-    //Generate token for user
+    //GENERATE TOKEN FOR USER
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return doGenerateToken(claims, userDetails.getUsername());
     }
 
-    //
     private String doGenerateToken(Map<String, Object> claims, String subject) {
-
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000)) //define claim
                 .signWith(SignatureAlgorithm.HS512, secret).compact(); // sign JWT
     }
 
-    //Validation of token
+    //VALIDATE TOKEN
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    //GENERATE TOKEN FOR PASSWORD
     public String generatePasswordResetToken(String userId) {
         return Jwts.builder().setSubject(userId).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + PASSWORD_RESET_EXPIRATION_TOKEN))

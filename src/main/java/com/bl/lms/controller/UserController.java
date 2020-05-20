@@ -3,6 +3,7 @@ package com.bl.lms.controller;
 import com.bl.lms.dto.*;
 import com.bl.lms.model.User;
 import com.bl.lms.repository.UserRepository;
+import com.bl.lms.service.IUserService;
 import com.bl.lms.service.UserServiceImpl;
 import com.bl.lms.util.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,28 +32,18 @@ public class UserController {
     JwtToken jwtTokenUtil;
 
     @Autowired
-    UserServiceImpl jwtUserServiceImpl;
+    IUserService jwtUserService;
 
     @PostMapping("/register")
     public ResponseEntity<?> saveUser(@RequestBody UserDTO user) throws Exception {
-        return ResponseEntity.ok(jwtUserServiceImpl.register(user));
+        return ResponseEntity.ok(jwtUserService.register(user));
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "Login successFull";
-    }
-
-    @PostMapping("/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDTO authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-
-        final UserDetails userDetails = jwtUserServiceImpl
-                .loadUserByUsername(authenticationRequest.getUsername());
-
+        final UserDetails userDetails = jwtUserService.loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
-
         return ResponseEntity.ok(new ResponseJwt(token));
     }
 
@@ -70,13 +61,13 @@ public class UserController {
     public Response requestResetPassword(@RequestBody ForgetPasswordDTO passwordRequest) throws MessagingException {
         User user = userRepository.findByEmail(passwordRequest.getEmail());
         final String token = jwtTokenUtil.generatePasswordResetToken(String.valueOf(user.getId()));
-        jwtUserServiceImpl.sentEmail(user, token);
+        jwtUserService.sentEmail(user, token);
         return new Response(200, "Email sent successfully");
     }
 
     @PutMapping("/resetpassword")
     public Response resetPassword(@RequestBody ForgetPasswordDTO resetPassword) {
-        boolean result = jwtUserServiceImpl.resetPassword(resetPassword.getPassword(), resetPassword.getToken());
+        boolean result = jwtUserService.resetPassword(resetPassword.getPassword(), resetPassword.getToken());
         if (result)
             return new Response(200, "Successfully updated");
         return null;

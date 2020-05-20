@@ -10,6 +10,7 @@ import java.util.Date;
 @Table
 @Entity(name = "hired_candidate")
 public class Candidate implements Serializable {
+
     @Id
     private long id;
     private String first_name;
@@ -30,6 +31,7 @@ public class Candidate implements Serializable {
     private Date creator_stamp;
     private String creator_user;
 
+    //GETTERS AND SETTERS
     public long getId() {
         return id;
     }
