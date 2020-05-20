@@ -15,5 +15,5 @@ public interface CandidateService {
 
     List getHiredCandidates();
 
-    Candidate findByFirst_name(String name);
+    Candidate findByfirstName(String name);
 }

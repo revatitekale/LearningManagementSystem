@@ -107,7 +107,7 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    public Candidate findByFirst_name(String name) {
+    public Candidate findBydfrstName(String name) {
         Candidate candidateModel = candidateRepository.findByFirst_name(name);
         return candidateModel;
     }
