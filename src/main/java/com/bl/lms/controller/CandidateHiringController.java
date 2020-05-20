@@ -31,6 +31,6 @@ public class CandidateHiringController {
 
     @GetMapping("/showprofile")
     public Candidate showCandidateProfile(@RequestBody CandidateProfileRequest viewProfileRequest) throws IOException {
-        return candidateService.findByFirst_name(viewProfileRequest.getFirst_name());
+        return candidateService.findByfirstName(viewProfileRequest.getFirst_name());
     }
 }
