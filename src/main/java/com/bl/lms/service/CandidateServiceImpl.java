@@ -28,7 +28,7 @@ public class CandidateServiceImpl implements ICandidateService {
 
     CandidateDTO candidateDTO = new CandidateDTO();
 
-    //READ DATA FROM EXCELSHEET
+    //READ DATA FROM EXCELSHEET AND STORE INTO DATABASE
     @Override
     public List getHiredCandidate(String filePath) throws IOException {
 
@@ -110,8 +110,8 @@ public class CandidateServiceImpl implements ICandidateService {
 
     //FIND CANDIDATE BY FIRST NAME
     @Override
-    public Candidate findByFirstName(String name) {
-        Candidate candidateModel = candidateRepository.findByFirst_name(name);
+    public Candidate showByFirstName(String name) {
+        Candidate candidateModel = candidateRepository.findByFirstName(name);
         return candidateModel;
     }
 }

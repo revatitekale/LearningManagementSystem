@@ -3,7 +3,6 @@ package com.bl.lms.controller;
 import com.bl.lms.dto.CandidateProfileRequestDTO;
 import com.bl.lms.dto.Response;
 import com.bl.lms.model.Candidate;
-import com.bl.lms.service.CandidateServiceImpl;
 import com.bl.lms.service.ICandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +31,6 @@ public class CandidateHiringController {
 
     @GetMapping("/showprofile")
     public Candidate showCandidateProfile(@RequestBody CandidateProfileRequestDTO viewProfileRequest) throws IOException {
-        return candidateService.findByFirstName(viewProfileRequest.getFirst_name());
+        return candidateService.showByFirstName(viewProfileRequest.getFirst_name());
     }
 }

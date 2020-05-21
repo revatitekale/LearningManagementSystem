@@ -15,5 +15,5 @@ public interface ICandidateService {
 
     List getHiredCandidates();
 
-    Candidate findByFirstName(String name);
+    Candidate showByFirstName(String name);
 }

@@ -33,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String username = null;
         String jwtToken = null;
-        // JWT TOKEN IS IN THE FORM "BEARER" TOKEN WE ROMOVE BEARER WORD AND GET ONLY THE TOKEN
+        // JWT TOKEN IS IN THE FORM "BEARER" TOKEN WE REMOVE BEARER WORD AND GET ONLY THE TOKEN
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
