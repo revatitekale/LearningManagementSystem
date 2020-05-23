@@ -10,9 +10,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,24 +31,27 @@ public class CandidateServiceImpl implements ICandidateService {
 
     //READ DATA FROM EXCELSHEET AND STORE INTO DATABASE
     @Override
-    public List getHiredCandidate(String filePath) throws IOException {
-
+    public List getHiredCandidate(MultipartFile filePath) throws IOException {
+        boolean flag = true;
         List sheetData = new ArrayList();
 
-        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+        try (InputStream fileInputStream = filePath.getInputStream()) {
 
             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
-            XSSFSheet sheet = workbook.getSheetAt(0);
+            XSSFSheet sheet = workbook.getSheetAt(1);
             Iterator rows = sheet.rowIterator();
             while (rows.hasNext()) {
                 XSSFRow row = (XSSFRow) rows.next();
                 Iterator cells = row.cellIterator();
                 List data = new ArrayList();
-                while (cells.hasNext()) {
-                    XSSFCell cell = (XSSFCell) cells.next();
-                    data.add(cell);
+                if (!flag) {
+                    while (cells.hasNext()) {
+                        XSSFCell cell = (XSSFCell) cells.next();
+                        data.add(cell);
+                    }
+                    sheetData.add(data);
                 }
-                sheetData.add(data);
+                flag = false;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,7 +63,7 @@ public class CandidateServiceImpl implements ICandidateService {
     @Override
     public void saveCandidateDetails(List sheetData) {
         XSSFCell cell;
-        for (int row = 1; row < sheetData.size(); row++) {
+        for (int row = 0; row < sheetData.size(); row++) {
             int coloumn = 0;
             List list = (List) sheetData.get(row);
             cell = (XSSFCell) list.get(coloumn++);

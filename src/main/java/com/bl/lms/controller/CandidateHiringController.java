@@ -6,19 +6,21 @@ import com.bl.lms.model.Candidate;
 import com.bl.lms.service.ICandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/candidatehiring")
+//@RequestMapping("/candidatehiring")
 public class CandidateHiringController {
 
     @Autowired
     ICandidateService candidateService;
 
     @PostMapping("/importcandidates")
-    public Response addHiredCandidate(@RequestParam(value = "filePath") String filePath) throws IOException {
+    public Response addHiredCandidate(@RequestParam(value = "filePath") MultipartFile filePath) throws IOException {
+        //String filepath="./src/main/java/resources/hired_candidate.xlsx";
         List hiredCandidate = candidateService.getHiredCandidate(filePath);
         candidateService.saveCandidateDetails(hiredCandidate);
         return new Response(200, "Successfully Added");
