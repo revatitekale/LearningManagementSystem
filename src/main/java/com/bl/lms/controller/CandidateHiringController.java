@@ -33,6 +33,6 @@ public class CandidateHiringController {
 
     @GetMapping("/showprofile")
     public Candidate showCandidateProfile(@RequestBody CandidateProfileRequestDTO viewProfileRequest) throws IOException {
-        return candidateService.showByFirstName(viewProfileRequest.getFirst_name());
+        return candidateService.showById(viewProfileRequest.getId());
     }
 }

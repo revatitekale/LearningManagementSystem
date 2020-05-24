@@ -114,7 +114,7 @@ public class CandidateServiceImpl implements ICandidateService {
 
     //FIND CANDIDATE BY FIRST NAME
     @Override
-    public Candidate showByFirstName(String name) {
+    public Candidate showById(String name) {
         Candidate candidateModel = candidateRepository.findByFirstName(name);
         return candidateModel;
     }

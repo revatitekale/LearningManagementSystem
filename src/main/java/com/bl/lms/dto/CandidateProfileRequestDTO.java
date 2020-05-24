@@ -2,13 +2,13 @@ package com.bl.lms.dto;
 
 public class CandidateProfileRequestDTO {
 
-    private String first_name;
+    private String id;
 
-    public String getFirst_name() {
-        return first_name;
+    public String getId() {
+        return id;
     }
 
-    public void setFirst_name(String first_name) {
-        this.first_name = first_name;
+    public void setId(String id) {
+        this.id = id;
     }
 }

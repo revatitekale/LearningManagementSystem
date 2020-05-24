@@ -21,9 +21,9 @@ public class UserController {
         return ResponseEntity.ok(new ResponseJwt(token));
     }
 
-    @GetMapping("/login")
+    @GetMapping("/homepage")
     public String login() {
-        return "Login successFull";
+        return "Welcome to Learner Management System";
     }
 
     @PostMapping("/register")
