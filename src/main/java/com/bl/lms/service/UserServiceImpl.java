@@ -55,8 +55,8 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     @Override
     public Response register(UserDTO user) {
-        user.setCreator_stamp(LocalDateTime.now());
-        user.setCreator_user(user.getFirst_name());
+        user.setCreatorStamp(LocalDateTime.now());
+        user.setCreatorUser(user.getFirstName());
         user.setVerified("yes");
         user.setPassword(bcryptEncoder.encode(user.getPassword()));
         User newUser = modelMapper.map(user, User.class);
@@ -91,7 +91,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         MimeMessage message = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setTo(recipientAddress);
-        helper.setText("Hello " + user.getFirst_name() + "\n" + " You have requested to reset password\n" +
+        helper.setText("Hello " + user.getFirstName() + "\n" + " You have requested to reset password\n" +
                 "http://localhost:8084/resetpassword?json" + null + "token is:" + token + "}");
         helper.setSubject("Password_Reset_Request");
         sender.send(message);
@@ -104,7 +104,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException(username + "User not found");
         }
-        return new org.springframework.security.core.userdetails.User(user.getFirst_name(), user.getPassword(),
+        return new org.springframework.security.core.userdetails.User(user.getFirstName(), user.getPassword(),
                 new ArrayList<>());
     }
 
