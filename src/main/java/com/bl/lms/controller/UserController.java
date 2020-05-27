@@ -13,11 +13,11 @@ import javax.mail.MessagingException;
 public class UserController {
 
     @Autowired
-    IUserService jwtUserService;
+    IUserService userService;
 
     @PostMapping("/authenticate")
     public ResponseEntity<ResponseJwt> createAuthenticationToken(@RequestBody LoginDTO loginRequest) throws Exception {
-        String token = jwtUserService.getAuthenticationToken(loginRequest);
+        String token = userService.getAuthenticationToken(loginRequest);
         return ResponseEntity.ok(new ResponseJwt(token));
     }
 
@@ -28,17 +28,17 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDTO user) throws Exception {
-        return ResponseEntity.ok(jwtUserService.register(user));
+        return ResponseEntity.ok(userService.register(user));
     }
 
     @GetMapping("/forgetpassword")
     public Response requestResetPassword(@RequestParam (value = "email") String email) throws MessagingException {
-       return jwtUserService.sentEmail(email);
+        return userService.sentEmail(email);
     }
 
     @PutMapping("/resetpassword")
     public Response resetPassword(@RequestBody ForgetPasswordDTO resetPassword) {
-        boolean result = jwtUserService.resetPassword(resetPassword.getPassword(), resetPassword.getToken());
+        boolean result = userService.resetPassword(resetPassword.getPassword(), resetPassword.getToken());
         if (result)
             return new Response(200, "Successfully updated");
         return null;
