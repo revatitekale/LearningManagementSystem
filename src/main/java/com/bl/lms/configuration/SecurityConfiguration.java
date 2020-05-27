@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/user/register", "/user/homepage", "/user/authenticate",
                 "/user/forgetpassword" , "/user/resetpassword", "/candidatehiring/list", "/candidatehiring/importcandidates",
                 "/candidatehiring/showprofile ", "/candidatehiring/status", "/candidatehiring/joboffer",
-                "/fellowshipdetails/updatedetails", "/bankdetails/updatebankdetails",
+                "/fellowshipdetails/joincandidate", "/fellowshipdetails/getcount","/bankdetails/updatebankdetails",
                 "/qualificationdetails/updatequalificationdetails").permitAll().
                 anyRequest().authenticated().and().
                 exceptionHandling().authenticationEntryPoint(jwtEntryPoint).and().sessionManagement()
