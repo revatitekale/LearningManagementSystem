@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @Component("candidateRepository")
-public interface CandidateRepository  extends JpaRepository<Candidate, Integer> {
-    @Query("select h from hired_candidate h where h.first_name = ?1")
-    Candidate findByFirstName(String first_name);
+public interface CandidateRepository  extends JpaRepository<Candidate, Long> {
+    Candidate findByEmail(String email);
+    Candidate findByStatusAndId(String status, Long id);
+    List<Candidate> findByStatus(String status);
 }
