@@ -33,7 +33,7 @@ public class FellowshipCandidateDTO {
     private String localAddress;
     private String permanentAddress;
     private String photoPath;
-    private Date joiningDate;
+    private LocalDate joiningDate;
     private String candidateStatus;
     private String documentStatus;
     private String remark;
