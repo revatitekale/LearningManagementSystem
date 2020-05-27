@@ -18,22 +18,22 @@ public class Candidate implements Serializable {
 
     @Id
     private long id;
-    private String first_name;
-    private String middle_name;
-    private String last_name;
+    private String firstName;
+    private String middleName;
+    private String lastName;
     private String email;
-    private String hired_city;
+    private String hiredCity;
     private String degree;
-    private Date hired_date;
-    private long mobile_number;
-    private long permanent_pincode;
-    private String hired_lab;
+    private Date hiredDate;
+    private long mobileNumber;
+    private long permanentPincode;
+    private String hiredLab;
     private String attitude;
-    private String communication_remark;
-    private String knowledge_remark;
-    private String aggregate_remark;
+    private String communicationRemark;
+    private String knowledgeRemark;
+    private String aggregateRemark;
     private String status;
-    private Date creator_stamp;
-    private String creator_user;
+    private Date creatorStamp;
+    private String creatorUser;
 
 }
