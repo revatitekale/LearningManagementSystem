@@ -14,8 +14,8 @@ public class SwaggerConfiguration {
     @Bean
     public Docket swaggerConfiguration(){
         return new Docket(DocumentationType.SWAGGER_2)
+                .host("8084")
                 .select()
-                .paths(PathSelectors.any())
                 .apis(RequestHandlerSelectors.basePackage("com.bl.lms"))
                 .build();
     }
