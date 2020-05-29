@@ -3,6 +3,7 @@ package com.bl.lms.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -20,6 +21,6 @@ public class CandidateBankDetailsDTO {
     private String isPanNumberVerified;
     private long addhaarNumber;
     private String isAdhaarNumVerified;
-    private Date creatorStamp;
+    private LocalDateTime creatorStamp;
     private String creatorUser;
 }
