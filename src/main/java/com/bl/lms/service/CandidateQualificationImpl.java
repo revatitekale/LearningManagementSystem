@@ -33,6 +33,6 @@ public class CandidateQualificationImpl implements ICandidateQualification{
         candidateQualificationDTO.setCreatorUser("Admin");
         CandidateQualification candidateQualification = modelMapper.map(candidateQualificationDTO,CandidateQualification.class);
         qualificationRepository.save(candidateQualification);
-        return new Response(200, "Candidate Qualification Details Updated Successfully");
+        return new Response(200, "Candidate Qualification Details Successfully Updated");
     }
 }
