@@ -3,6 +3,7 @@ package com.bl.lms.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -27,6 +28,6 @@ public class CandidateQualificationDTO {
     private String isTrainingDurationMonthVerified;
     private String otherTraining;
     private String isOtherTrainingVerified;
-    private Date creatorStamp;
+    private LocalDateTime creatorStamp;
     private String creatorUser;
 }
