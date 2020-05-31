@@ -131,10 +131,10 @@ public class CandidateServiceImpl implements ICandidateService {
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setTo(hiredCandidate.getEmail());
         helper.setText("Hii, " + hiredCandidate.getFirstName() + " " + hiredCandidate.getLastName() + " " +
-                "You have been selected to our Fellowship Program. please click on the following " +
-                 "\n" + "http://localhost:8080/candidatehiring" +
+                "You have been selected for Fellowship Program." + "\n" + "join: " +
+                 "\n" + "http://localhost:8084/candidatehiring" +
                 "/status?response=Accepted&email=" + hiredCandidate.getEmail() + "\n\n"
-                + "Please click on following link to reject the offer. " + "\n" + "http://localhost:8080/" +
+                + "Reject: " + "\n" + "http://localhost:8084/" +
                 "candidatehiring/status?response=Rejected&email=" + hiredCandidate.getEmail() + "\n\n");
         helper.setSubject("Fellowship Offer From Bridgelabz");
         javaMailSender.send(message);
@@ -159,15 +159,15 @@ public class CandidateServiceImpl implements ICandidateService {
             helper.setTo(candidate.getEmail());
             helper.setText("Hii, " + candidate.getFirstName() + " " + candidate.getLastName() + " " +
                     "As per your confirmation, You have been officially selected to BridgeLabz Fellowship" +
-                    " Program." + "\n\n" + "We your personal information, " +
+                    " Program." + "\n\n" + "We need your personal information, " +
                     "your bank information and your educational information " + "\n\n"
                     + "Click on following links to do the same." +
                     "\n\n" +
-                    "http://localhost:8080/fellowshipdetails/updatedetails" + "\n\n" +
-                    "http://localhost:8080/qualificationdetails/updatequalificationdetails" + "\n\n" +
-                    "http://localhost:8080/bankdetails/updatebankdetails"
+                    "http://localhost:8084/fellowshipdetails/updatedetails" + "\n\n" +
+                    "http://localhost:8084/fellowshipdetails/updatequalificationdetails" + "\n\n" +
+                    "http://localhost:8084/fellowshipdetails/updatebankdetails"
             );
-            helper.setSubject("Fellowship from BridgeLabz");
+            helper.setSubject("Fellowship from Bridgelabz");
             javaMailSender.send(message);
         }
         return new Response(200, "Mail Sent Successfully");
