@@ -1,6 +1,8 @@
 package com.bl.lms.controller;
 
+import com.bl.lms.configuration.ApplicationConfig;
 import com.bl.lms.dto.Response;
+import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.Candidate;
 import com.bl.lms.service.ICandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +36,13 @@ public class CandidateHiringController {
         return ResponseEntity.ok(candidateService.showById(id));
     }
 
-    @PutMapping("/status")
-    public ResponseEntity<Response> onboardStatus(@RequestParam String response, @RequestParam String email) {
-        return ResponseEntity.ok(candidateService.updateStatus(response, email));
+    @PutMapping("/updatestatus")
+    public ResponseEntity<Response> updateCandidateStatus(@RequestParam String response, @RequestParam String email) throws LmsAppException {
+        return ResponseEntity.ok(candidateService.updateCandidateStatus(response, email));
     }
 
     @GetMapping("/joboffer")
-    public ResponseEntity<Response> jobUpdates() throws MessagingException {
+    public ResponseEntity<Response> sendJobOfferNotification() throws MessagingException {
         return ResponseEntity.ok(candidateService.sendJobOffer());
     }
 }
