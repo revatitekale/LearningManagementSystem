@@ -2,6 +2,7 @@ package com.bl.lms.service;
 
 import com.bl.lms.dto.CandidateDTO;
 import com.bl.lms.dto.Response;
+import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.Candidate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,9 +22,7 @@ public interface ICandidateService {
 
     Candidate showById(Long id);
 
-    Response updateStatus(String response, String email);
-
-    void sendMail(Candidate hiredCandidate) throws MessagingException;
+    Response updateCandidateStatus(String response, String email) throws LmsAppException;
 
     Response sendJobOffer() throws MessagingException;
 }

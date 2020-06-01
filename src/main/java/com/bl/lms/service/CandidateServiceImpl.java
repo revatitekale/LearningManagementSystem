@@ -1,7 +1,9 @@
 package com.bl.lms.service;
 
+import com.bl.lms.configuration.ApplicationConfig;
 import com.bl.lms.dto.CandidateDTO;
 import com.bl.lms.dto.Response;
+import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.Candidate;
 import com.bl.lms.repository.CandidateRepository;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -100,15 +102,16 @@ public class CandidateServiceImpl implements ICandidateService {
         } catch (IOException | MessagingException e) {
             e.printStackTrace();
         }
-        return new Response(200, "Data Successfully Added");
+        return new Response(candidateDTO,200, "Data Successfully Added");
     }
 
     //SAVE HIRE CANDIDATE DETAILS
     @Override
-    public void saveCandidateDetails(CandidateDTO sheetData) throws MessagingException {
-        Candidate candidate = modelMapper.map(sheetData, Candidate.class);
-        candidateRepository.save(candidate);
-        this.sendMail(candidate);
+    public void saveCandidateDetails(CandidateDTO candidateDTO) throws MessagingException {
+        Candidate hiredCandidate = modelMapper.map(candidateDTO, Candidate.class);
+        if (hiredCandidate == null)
+            throw new LmsAppException(LmsAppException.exceptionType.DATA_NOT_FOUND, "Data not found");
+        candidateRepository.save(hiredCandidate);
     }
 
     //GET THE LIST OF CANDIDATE
@@ -124,29 +127,14 @@ public class CandidateServiceImpl implements ICandidateService {
         return candidateModel;
     }
 
-    //SEND MAIL TO SELECTED CANDIDATE
     @Override
-    public void sendMail(Candidate hiredCandidate) throws MessagingException {
-        MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setTo(hiredCandidate.getEmail());
-        helper.setText("Hii, " + hiredCandidate.getFirstName() + " " + hiredCandidate.getLastName() + " " +
-                "You have been selected for Fellowship Program." + "\n" + "join: " +
-                 "\n" + "http://localhost:8084/candidatehiring" +
-                "/status?response=Accepted&email=" + hiredCandidate.getEmail() + "\n\n"
-                + "Reject: " + "\n" + "http://localhost:8084/" +
-                "candidatehiring/status?response=Rejected&email=" + hiredCandidate.getEmail() + "\n\n");
-        helper.setSubject("Fellowship Offer From Bridgelabz");
-        javaMailSender.send(message);
-    }
-
-    //UPDATE STATUS OF CANDIDATE
-    @Override
-    public Response updateStatus(String response, String email) {
+    public Response updateCandidateStatus(String response, String email) throws LmsAppException {
         Candidate candidate = candidateRepository.findByEmail(email);
+        if (candidate == null)
+            throw new LmsAppException(LmsAppException.exceptionType.USER_NOT_FOUND, "User not found");
         candidate.setStatus(response);
         candidateRepository.save(candidate);
-        return new Response(200, "Status Updated Successfully");
+        return new Response(candidate, 106, ApplicationConfig.getMessageAccessor().getMessage("106"));
     }
 
     //SEND JOB OFFER TO HIRED CANDIDATE
@@ -170,6 +158,6 @@ public class CandidateServiceImpl implements ICandidateService {
             helper.setSubject("Fellowship from Bridgelabz");
             javaMailSender.send(message);
         }
-        return new Response(200, "Mail Sent Successfully");
+        return new Response(candidateDTO, 200, "Mail Sent Successfully");
     }
 }

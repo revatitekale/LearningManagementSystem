@@ -4,6 +4,7 @@ import com.bl.lms.dto.CandidateBankDetailsDTO;
 import com.bl.lms.dto.CandidateQualificationDTO;
 import com.bl.lms.dto.FellowshipCandidateDTO;
 import com.bl.lms.dto.Response;
+import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.Candidate;
 import com.bl.lms.model.CandidateBankDetails;
 import com.bl.lms.model.CandidateQualification;
@@ -15,9 +16,15 @@ import com.bl.lms.repository.QualificationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -42,51 +49,63 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
     private JavaMailSender sender;
 
     @Override
-    public Response joinCandidateToFellowship(FellowshipCandidateDTO fellowshipCandidateDTO) {
-        Candidate acceptedCandidate = hiredCandidateRepository.findByStatusAndId("Accepted", fellowshipCandidateDTO.getId());
-        fellowshipCandidateDTO.setIsBirthDateVerified("yes");
-        fellowshipCandidateDTO.setPhotoPath("verified");
-        fellowshipCandidateDTO.setJoiningDate(LocalDate.now());
-        fellowshipCandidateDTO.setDocumentStatus("Pending");
-        fellowshipCandidateDTO.setRemark("OK");
-        modelMapper.map(acceptedCandidate, fellowshipCandidateDTO);
-        FellowshipCandidate fellowshipCandidate = modelMapper.map(fellowshipCandidateDTO, FellowshipCandidate.class);
-        fellowshipCandidateRepository.save(fellowshipCandidate);
-        return new Response(200, "Candidate Joined Successfully");
+    public FellowshipCandidate joinCandidateToFellowship(long id) {
+        Candidate hiredCandidateModel = hiredCandidateRepository.findById(id)
+                .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.INVALID_ID, "User not found"));
+        FellowshipCandidate fellowshipCandidateModel = modelMapper.map(hiredCandidateModel, FellowshipCandidate.class);
+        if (fellowshipCandidateModel.equals(null))
+            throw new LmsAppException(LmsAppException.exceptionType.DATA_NOT_FOUND, "Null Value");
+        return fellowshipCandidateRepository.save(fellowshipCandidateModel);
     }
 
     @Override
-    public Response getCandidateCount() {
-        long candidateCount = fellowshipCandidateRepository.count();
-        return new Response(200, "Total no of candidates: " + candidateCount);
+    public int getCandidateCount() {
+        List<FellowshipCandidate> list = fellowshipCandidateRepository.findAll();
+        return list.size();
     }
 
     @Override
-    public Response updateCandidateBankInfo(CandidateBankDetailsDTO candidateBankDetailsDTO) {
-        candidateBankDetailsDTO.setIsAccountNumberVerified("Yes");
-        candidateBankDetailsDTO.setIsAdhaarNumVerified("Yes");
-        candidateBankDetailsDTO.setIsIfscCodeVerified("Yes");
-        candidateBankDetailsDTO.setIsPanNumberVerified("Yes");
-        candidateBankDetailsDTO.setCreatorStamp(LocalDateTime.now());
-        candidateBankDetailsDTO.setCreatorUser(candidateBankDetailsDTO.getName());
-        CandidateBankDetails candidateBankDetails = modelMapper.map(candidateBankDetailsDTO, CandidateBankDetails.class);
-        bankDetailsRepository.save(candidateBankDetails);
-        return new Response(200, "Bank Details Successfully Updated");
+    public FellowshipCandidate updateInformation(FellowshipCandidateDTO fellowshipCandidateDto) {
+        Candidate hiredCandidateModel = hiredCandidateRepository.findById(fellowshipCandidateDto.getId())
+                .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType
+                        .INVALID_ID, "User not found"));
+        modelMapper.map(hiredCandidateModel,fellowshipCandidateDto);
+        FellowshipCandidate fellowshipMappedCandidate = modelMapper.map(fellowshipCandidateDto, FellowshipCandidate.class);
+        return fellowshipCandidateRepository.save(fellowshipMappedCandidate);
     }
 
     @Override
-    public Response updateQualificationDetails(CandidateQualificationDTO candidateQualificationDTO) {
-        candidateQualificationDTO.setIsDegreeNameVerified("Yes");
-        candidateQualificationDTO.setIsEmployeeDisciplinedVerified("Yes");
-        candidateQualificationDTO.setIsFinalYearPercentageVerified("Yes");
-        candidateQualificationDTO.setIsOtherTrainingVerified("Yes");
-        candidateQualificationDTO.setIsTrainingInstituteVerified("Yes");
-        candidateQualificationDTO.setIsPassingYearVerified("Yes");
-        candidateQualificationDTO.setIsTrainingDurationMonthVerified("Yes");
-        candidateQualificationDTO.setCreatorStamp(LocalDateTime.now());
-        candidateQualificationDTO.setCreatorUser("Admin");
-        CandidateQualification candidateQualification = modelMapper.map(candidateQualificationDTO,CandidateQualification.class);
-        qualificationRepository.save(candidateQualification);
-        return new Response(200, "Candidate Qualification Details Successfully Updated");
+    public void sendMail(FellowshipCandidate fellowshipCandidateModel) throws MessagingException {
+        String recipientAddress = fellowshipCandidateModel.getEmail();
+        MimeMessage message = sender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setTo(recipientAddress);
+        helper.setText("Hii, " + fellowshipCandidateModel.getFirstName() + " " + fellowshipCandidateModel.getLastName() + " " +
+                "You have been selected for Fellowship Program." + "\n" + "join: " +
+                "\n" + "http://localhost:8084/candidatehiring" +
+                "/status?response=Accepted&email=" + fellowshipCandidateModel.getEmail() + "\n\n"
+                + "Reject: " + "\n" + "http://localhost:8084/" +
+                "candidatehiring/status?response=Rejected&email=" + fellowshipCandidateModel.getEmail() + "\n\n");
+        helper.setSubject("Job offer notification");
+        //sender.send(message);
+    }
+
+    @Override
+    public CandidateBankDetails updateBankDetails(CandidateBankDetails bankDetailsDto) {
+        fellowshipCandidateRepository.findById(bankDetailsDto.getCandidateId())
+                .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.INVALID_ID, "Invalid Id"));
+        CandidateBankDetails bankDetailsModel = modelMapper.map(bankDetailsDto, CandidateBankDetails.class);
+        bankDetailsModel.setCreatorStamp(new LocalDateTime());
+        bankDetailsModel.setCreatorUser(bankDetailsDto.getName());
+        return bankDetailsRepository.save(bankDetailsModel);
+    }
+
+    @Override
+    public CandidateQualification updateQualificationDetails(CandidateQualificationDTO candidateQualificationDto) {
+        fellowshipCandidateRepository.findById(candidateQualificationDto.getCandidateId())
+                .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.INVALID_ID, "Invalid id"));
+        CandidateQualification qualificationDetails = modelMapper.map(candidateQualificationDto, CandidateQualification.class);
+        qualificationDetails.setCreatorStamp(new Date());
+        return qualificationRepository.save(qualificationDetails);
     }
 }
