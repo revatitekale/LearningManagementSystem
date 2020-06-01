@@ -1,13 +1,14 @@
 package com.bl.lms.dto;
 import lombok.Data;
 
-@Data
 public class Response {
-    public Object status;
+    public Object data;
+    public int status;
     public String message;
 
-    public Response(int status, String message) {
-        this.status = status;
+    public Response(Object data, int status, String message) {
+        this.data = data;
         this.message = message;
+        this.status = status;
     }
 }
