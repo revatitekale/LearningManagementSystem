@@ -1,11 +1,13 @@
 package com.bl.lms.model;
-
-import lombok.Data;
-
+import lombok.*;
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table
 @Entity(name = "candidate_bank_details")
 public class CandidateBankDetails {
@@ -23,6 +25,6 @@ public class CandidateBankDetails {
     private String isPanNumberVerified;
     private long addhaarNumber;
     private String isAdhaarNumVerified;
-    private Date creatorStamp;
+    private LocalDateTime creatorStamp;
     private String creatorUser;
 }
