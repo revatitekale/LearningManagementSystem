@@ -1,10 +1,7 @@
 package com.bl.lms.dto;
-
 import lombok.Data;
-
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class CandidateBankDetailsDTO {
@@ -12,15 +9,24 @@ public class CandidateBankDetailsDTO {
     private long id;
     @NotNull
     private long candidateId;
+    @NotNull
     private String name;
+    @NotNull
     private long accountNumber;
+    @NotNull
     private String isAccountNumberVerified;
+    @NotNull
     private String ifscCode;
+    @NotNull
     private String isIfscCodeVerified;
+    @NotNull
     private String panNumber;
+    @NotNull
     private String isPanNumberVerified;
+    @NotNull
     private long addhaarNumber;
-    private String isAdhaarNumVerified;
+    @NotNull
+    private String isAddhaarNumVerified;
     private LocalDateTime creatorStamp;
-    private String creatorUser;
+    private long creatorUser;
 }
