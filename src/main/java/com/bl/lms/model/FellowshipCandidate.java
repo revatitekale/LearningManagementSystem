@@ -5,6 +5,8 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -17,6 +19,7 @@ public class FellowshipCandidate {
     private String firstName;
     private String middleName;
     private String lastName;
+    @Email
     private String email;
     private String degree;
     private String hiredCity;
@@ -29,8 +32,8 @@ public class FellowshipCandidate {
     private String knowledgeRemark;
     private String aggregateRemark;
     private String status;
-    private Date creatorStamp;
-    private String creatorUser;
+    private LocalDateTime creatorStamp;
+    private long creatorUser;
     private Date birthDate;
     private String isBirthDateVerified;
     private String parentOccupation;
@@ -43,4 +46,12 @@ public class FellowshipCandidate {
     private String candidateStatus;
     private String documentStatus;
     private String remark;
+
+    public LocalDateTime getCreatorStamp() {
+        return creatorStamp;
+    }
+
+    public void setCreatorStamp(LocalDateTime creatorStamp) {
+        this.creatorStamp = creatorStamp;
+    }
 }
