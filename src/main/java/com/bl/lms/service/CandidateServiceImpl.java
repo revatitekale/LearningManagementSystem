@@ -1,6 +1,5 @@
 package com.bl.lms.service;
 
-import com.bl.lms.configuration.ApplicationConfig;
 import com.bl.lms.dto.CandidateDTO;
 import com.bl.lms.dto.Response;
 import com.bl.lms.exception.LmsAppException;
@@ -21,9 +20,10 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CandidateServiceImpl implements ICandidateService {
@@ -39,11 +39,16 @@ public class CandidateServiceImpl implements ICandidateService {
 
     CandidateDTO candidateDTO = new CandidateDTO();
 
-    //READ DATA FROM EXCELSHEET AND STORE INTO DATABASE
+    /**
+     *
+     * @param filePath
+     * @return Method to read excel file and store data to database
+     * @throws IOException
+     */
     @Override
-    public Response getHiredCandidate(MultipartFile filePath) throws IOException {
-        CandidateDTO hiredCandidateDTO = new CandidateDTO();
+    public boolean getHiredCandidate(MultipartFile filePath) throws IOException {
         boolean flag = true;
+        CandidateDTO hiredCandidateDto = new CandidateDTO();
         try (InputStream fis = filePath.getInputStream()) {
             //Create Workbook instance holding reference to .xlsx file
             XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -59,42 +64,43 @@ public class CandidateServiceImpl implements ICandidateService {
                 if (!flag) {
                     while (cells.hasNext()) {
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setId((long) cell.getNumericCellValue());
+                        hiredCandidateDto.setId((long) cell.getNumericCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setFirstName(cell.getStringCellValue());
+                        hiredCandidateDto.setFirstName(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setMiddleName(cell.getStringCellValue());
+                        hiredCandidateDto.setMiddleName(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setLastName(cell.getStringCellValue());
+                        hiredCandidateDto.setLastName(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setEmail(cell.getStringCellValue());
+                        hiredCandidateDto.setEmail(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setHiredCity(cell.getStringCellValue());
+                        hiredCandidateDto.setHiredCity(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setDegree(cell.getStringCellValue());
+                        hiredCandidateDto.setDegree(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setHiredDate(cell.getDateCellValue());
+                        hiredCandidateDto.setHiredDate(cell.getDateCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setMobileNumber((long) cell.getNumericCellValue());
+                        hiredCandidateDto.setMobileNumber((long) cell.getNumericCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setPermanentPincode((int) cell.getNumericCellValue());
+                        hiredCandidateDto.setPermanentPincode((long) cell.getNumericCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setHiredLab(cell.getStringCellValue());
+                        hiredCandidateDto.setHiredLab(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setAttitude(cell.getStringCellValue());
+                        hiredCandidateDto.setAttitude(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setCommunicationRemark(cell.getStringCellValue());
+                        hiredCandidateDto.setCommunicationRemark(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setKnowledgeRemark(cell.getStringCellValue());
+                        hiredCandidateDto.setKnowledgeRemark(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setAggregateRemark(cell.getStringCellValue());
+                        hiredCandidateDto.setAggregateRemark(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setStatus(cell.getStringCellValue());
+                        hiredCandidateDto.setStatus(cell.getStringCellValue());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setCreatorStamp(cell.getDateCellValue());
+                        hiredCandidateDto.setCreatorStamp(LocalDateTime.now());
                         cell = (XSSFCell) cells.next();
-                        hiredCandidateDTO.setCreatorUser(cell.getStringCellValue());
-                        saveCandidateDetails(hiredCandidateDTO);
+                        hiredCandidateDto.setCreatorUser(hiredCandidateDto.getId());
+                        saveCandidateDetails(hiredCandidateDto);
+                        sendEmail(hiredCandidateDto);
                     }
                 }
                 flag = false;
@@ -102,10 +108,34 @@ public class CandidateServiceImpl implements ICandidateService {
         } catch (IOException | MessagingException e) {
             e.printStackTrace();
         }
-        return new Response(candidateDTO,200, "Data Successfully Added");
+        return true;
     }
 
-    //SAVE HIRE CANDIDATE DETAILS
+
+    /**
+     * @param candidateDTO
+     * @throws MessagingException
+     * sent email to each candidate.
+     */
+    @Override
+    public void sendEmail(CandidateDTO candidateDTO) throws MessagingException {
+        String recipientAddress = candidateDTO.getEmail();
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setTo(recipientAddress);
+        helper.setText("Hii, " + candidateDTO.getFirstName() + " " + candidateDTO.getLastName() + " " +
+                "You have been selected for Fellowship Program." + "\n" + "join: " +
+                "\n" + "http://localhost:8084/candidatehiring" +
+                "/status?response=Accepted&email=" + candidateDTO.getEmail() + "\n\n"
+                + "Reject: " + "\n" + "http://localhost:8084/" +
+                "candidatehiring/status?response=Rejected&email=" + candidateDTO.getEmail() + "\n\n");
+        helper.setSubject("Job offer notification");
+    }
+
+    /**
+     * @param candidateDTO
+     * @return save candidate details to database.
+     */
     @Override
     public void saveCandidateDetails(CandidateDTO candidateDTO) throws MessagingException {
         Candidate hiredCandidate = modelMapper.map(candidateDTO, Candidate.class);
@@ -114,50 +144,34 @@ public class CandidateServiceImpl implements ICandidateService {
         candidateRepository.save(hiredCandidate);
     }
 
-    //GET THE LIST OF CANDIDATE
+    /**
+     * @return list of hired candidate.
+     */
     @Override
     public List getHiredCandidatesList() {
         return candidateRepository.findAll();
     }
 
-    //FIND CANDIDATE BY FIRST NAME
+    /**
+     * @param id
+     * @return candidate details.
+     */
     @Override
-    public Candidate showById(Long id) {
-        Candidate candidateModel = candidateRepository.findById(id).get();
-        return candidateModel;
+    public Optional<Candidate> showById(Long id) {
+        return candidateRepository.findById(id);
     }
 
+    /**
+     * @param email
+     * @param status
+     * @return Updated candidate status.
+     */
     @Override
-    public Response updateCandidateStatus(String response, String email) throws LmsAppException {
-        Candidate candidate = candidateRepository.findByEmail(email);
-        if (candidate == null)
-            throw new LmsAppException(LmsAppException.exceptionType.USER_NOT_FOUND, "User not found");
-        candidate.setStatus(response);
-        candidateRepository.save(candidate);
-        return new Response(candidate, 106, ApplicationConfig.getMessageAccessor().getMessage("106"));
-    }
-
-    //SEND JOB OFFER TO HIRED CANDIDATE
-    @Override
-    public Response sendJobOffer() throws MessagingException {
-        List<Candidate> acceptedCandidates = candidateRepository.findByStatus("Accepted");
-        for (Candidate candidate : acceptedCandidates) {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-            helper.setTo(candidate.getEmail());
-            helper.setText("Hii, " + candidate.getFirstName() + " " + candidate.getLastName() + " " +
-                    "As per your confirmation, You have been officially selected to BridgeLabz Fellowship" +
-                    " Program." + "\n\n" + "We need your personal information, " +
-                    "your bank information and your educational information " + "\n\n"
-                    + "Click on following links to do the same." +
-                    "\n\n" +
-                    "http://localhost:8084/fellowshipdetails/updatedetails" + "\n\n" +
-                    "http://localhost:8084/fellowshipdetails/updatequalificationdetails" + "\n\n" +
-                    "http://localhost:8084/fellowshipdetails/updatebankdetails"
-            );
-            helper.setSubject("Fellowship from Bridgelabz");
-            javaMailSender.send(message);
-        }
-        return new Response(candidateDTO, 200, "Mail Sent Successfully");
+    public Candidate updateCandidateStatus(String email, String status) throws LmsAppException {
+        return candidateRepository.findByEmail(email)
+                .map(hiredCandidateModel -> {
+                    hiredCandidateModel.setStatus(status);
+                    return candidateRepository.save(hiredCandidateModel);
+                }).orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.DATA_NOT_FOUND, "Data not found"));
     }
 }
