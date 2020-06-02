@@ -1,9 +1,6 @@
 package com.bl.lms.model;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -19,8 +16,16 @@ public class User {
     private String email;
     private String password;
     private long contactNumber;
-    private String Verified;
+    private String verified;
     private LocalDateTime creatorStamp;
-    private String creatorUser;
+    private long creatorUser;
+
+    public LocalDateTime getCreatorStamp() {
+        return creatorStamp;
+    }
+
+    public void setCreatorStamp(LocalDateTime creatorStamp) {
+        this.creatorStamp = LocalDateTime.now();
+    }
 
 }
