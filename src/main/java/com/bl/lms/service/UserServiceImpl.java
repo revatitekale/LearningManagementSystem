@@ -1,8 +1,8 @@
 package com.bl.lms.service;
 
 import com.bl.lms.dto.LoginDTO;
-import com.bl.lms.dto.Response;
 import com.bl.lms.dto.UserDTO;
+import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.User;
 import com.bl.lms.repository.UserRepository;
 import com.bl.lms.util.JwtToken;
@@ -23,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Service
@@ -42,7 +41,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private ModelMapper modelMapper;
 
     @Autowired
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     @Autowired
     private JwtToken jwtToken;
@@ -53,17 +52,53 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Autowired
     private EntityManager entityManager;
 
+    /**
+     * @param user
+     * @return response(Method to register user)
+     */
     @Override
-    public Response register(UserDTO user) {
-        user.setCreatorStamp(LocalDateTime.now());
-        user.setCreatorUser(user.getFirstName());
-        user.setVerified("yes");
+    public User register(UserDTO user) {
         user.setPassword(bcryptEncoder.encode(user.getPassword()));
         User newUser = modelMapper.map(user, User.class);
-        userRepository.save(newUser);
-        return new Response(200, "Register successfull");
+        User registeredUser = userRepository.save(newUser);
+        registeredUser.setCreatorUser(registeredUser.getId());
+        return userRepository.save(newUser);
     }
 
+    /**
+     * @param email
+     * @return Method to get password reset token.
+     * @throws MessagingException
+     */
+    @Override
+    public String getPasswordToken(String email) throws MessagingException {
+        User user = userRepository.findByEmail(email);
+        final String token = jwtToken.generatePasswordResetToken(String.valueOf(user.getId()));
+        sentEmail(user, token);
+        return token;
+    }
+
+    /**
+     * @param user, token
+     * @return Method to send reset password request email.
+     * @throws MessagingException
+     */
+    public void sentEmail(User user, String token) throws MessagingException {
+        String recipientAddress = user.getEmail();
+        MimeMessage message = sender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setTo(recipientAddress);
+        helper.setText("Hii " + user.getFirstName() + "\n" + " You requested to reset password, if YES then click on link put your new password and NO then ignore \n" +
+                "http://localhost:8084/forgetpassword?json={%22password%22:%22" + null + "%22+,%22token%22:" + token + "}");
+        helper.setSubject("Request to Reset Password");
+        sender.send(message);
+    }
+
+    /**
+     * @param authenticationRequest
+     * @return Method to get authentication token
+     * @throws Exception
+     */
     @Override
     public String getAuthenticationToken(LoginDTO authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
@@ -73,6 +108,11 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         return token;
     }
 
+    /**
+     * @param username, password
+     * @return Method to authenticate user.
+     * @throws Exception
+     */
     private void authenticate(String username, String password) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -83,21 +123,11 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         }
     }
 
-    @Override
-    public Response sentEmail(String email) throws MessagingException {
-        User user = userRepository.findByEmail(email);
-        final String token = jwtToken.generatePasswordResetToken(String.valueOf(user.getId()));
-        String recipientAddress = user.getEmail();
-        MimeMessage message = sender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setTo(recipientAddress);
-        helper.setText("Hello " + user.getFirstName() + "\n" + " You have requested to reset password\n" +
-                "http://localhost:8084/resetpassword?json" + null + "token is:" + token + "}");
-        helper.setSubject("Password_Reset_Request");
-        sender.send(message);
-        return new Response(200, token);
-    }
-
+    /**
+     * @param username
+     * @return response(Method to load user by its username)
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByFirstName(username);
@@ -108,18 +138,23 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
                 new ArrayList<>());
     }
 
+    /**
+     * @param password
+     * @param token
+     * @return Method to reset password.
+     */
     @Override
-    public boolean resetPassword(String password, String token) {
+    public User resetPassword(String password, String token) {
         String encodedPassword = bcryptEncoder.encode(password);
         if (jwtToken.isTokenExpired(token)) {
-            return false;
+            throw new LmsAppException(LmsAppException.exceptionType.INVALID_TOKEN, "Token expired");
         }
-        long id = Long.parseLong(jwtToken.getUsernameFromToken(token));
-        User user = entityManager.find(User.class, id);
-        user.setPassword(encodedPassword);
-        User updatedUser = userRepository.save(user);
-        if (updatedUser != null && updatedUser.getPassword().equalsIgnoreCase(encodedPassword))
-            return true;
-        return false;
+        long id = Long.valueOf(jwtToken.getUsernameFromToken(token));
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setPassword(encodedPassword);
+                    return user;
+                })
+                .map(userRepository::save).get();
     }
 }
