@@ -3,6 +3,7 @@ package com.bl.lms.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -30,6 +31,14 @@ public class CandidateQualification {
     private String isTrainingDurationMonthVerified;
     private String otherTraining;
     private String isOtherTrainingVerified;
-    private Date creatorStamp;
-    private String creatorUser;
+    private LocalDateTime creatorStamp;
+    private long creatorUser;
+
+    public LocalDateTime getCreatorStamp() {
+        return creatorStamp;
+    }
+
+    public void setCreatorStamp(LocalDateTime creatorStamp) {
+        this.creatorStamp = LocalDateTime.now();
+    }
 }
