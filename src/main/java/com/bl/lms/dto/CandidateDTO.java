@@ -3,6 +3,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -23,6 +24,6 @@ public class CandidateDTO {
     private String knowledgeRemark;
     private String aggregateRemark;
     private String status;
-    private Date creatorStamp;
-    private String creatorUser;
+    private LocalDateTime creatorStamp;
+    private long creatorUser;
 }
