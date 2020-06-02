@@ -54,7 +54,6 @@ public class CandidateHiringController {
     }
 
     /**
-     *
      * @param email
      * @param status
      * @return hiredCandidateModel
