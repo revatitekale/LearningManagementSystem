@@ -24,7 +24,23 @@ public class CandidateBankDetails {
     private String panNumber;
     private String isPanNumberVerified;
     private long addhaarNumber;
-    private String isAdhaarNumVerified;
+    private String isAddhaarNumVerified;
     private LocalDateTime creatorStamp;
-    private String creatorUser;
+    private long creatorUser;
+
+    public LocalDateTime getCreatorStamp() {
+        return creatorStamp;
+    }
+
+    public void setCreatorStamp(LocalDateTime creatorStamp) {
+        this.creatorStamp = LocalDateTime.now();
+    }
+
+    public long getCreatorUser() {
+        return creatorUser;
+    }
+
+    public void setCreatorUser(long creatorUser) {
+        this.creatorUser = this.candidateId;
+    }
 }
