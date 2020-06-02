@@ -4,12 +4,14 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.annotation.PostConstruct;
 import java.util.Locale;
 
 @Configuration
 @EnableAutoConfiguration
+@EnableSwagger2
 public class ApplicationConfig {
 
     private static MessageSourceAccessor messageSourceAccessor;
