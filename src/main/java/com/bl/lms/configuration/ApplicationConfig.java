@@ -11,7 +11,6 @@ import java.util.Locale;
 
 @Configuration
 @EnableAutoConfiguration
-@EnableSwagger2
 public class ApplicationConfig {
 
     private static MessageSourceAccessor messageSourceAccessor;
