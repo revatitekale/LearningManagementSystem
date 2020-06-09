@@ -4,12 +4,14 @@ import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class CloudinaryConfig {
+@Component(" cloudinaryConfig")
+public class CloudinaryConfiguration {
 
     @Value("${cloudinary.cloud_name}")
     private String cloudName;

@@ -1,6 +1,6 @@
 package com.bl.lms.service;
 
-import com.bl.lms.configuration.CloudinaryConfig;
+import com.bl.lms.configuration.CloudinaryConfiguration;
 import com.bl.lms.dto.*;
 import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.*;
@@ -18,9 +18,6 @@ import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +42,10 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
     private ModelMapper modelMapper;
 
     @Autowired
-    private JavaMailSender sender;
+    private JavaMailSender mailSender;
 
     @Autowired
-    private CloudinaryConfig cloudinaryConfig;
+    private CloudinaryConfiguration cloudinaryConfiguration;
 
     @Autowired
     private CandidateDocumentRepository candidateDocumentRepository;
@@ -97,7 +94,7 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
     @Override
     public void sendMail(FellowshipCandidate fellowshipCandidateModel) throws MessagingException {
         String recipientAddress = fellowshipCandidateModel.getEmail();
-        MimeMessage message = sender.createMimeMessage();
+        MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setTo(recipientAddress);
         helper.setText("Hii, " + fellowshipCandidateModel.getFirstName() + " " + fellowshipCandidateModel.getLastName() + " " +
@@ -148,7 +145,7 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
             Map<Object, Object> parameters = new HashMap<>();
             parameters.put("public_id", "CandidateDocuments/" + uploadDocumentsDto.getId() + "/" + file.getOriginalFilename());
             File uploadedFile = convertMultiPartToFile(file);
-            Map uploadResult = cloudinaryConfig.cloudinaryConfig().uploader().upload(uploadedFile, parameters);
+            Map uploadResult = cloudinaryConfiguration.cloudinaryConfig().uploader().upload(uploadedFile, parameters);
             String url = uploadResult.get("url").toString();
             uploadDocumentsDto.setDocumentPath(url);
             CandidateDocuments uploadDocumentsDao = modelMapper.map(uploadDocumentsDto, CandidateDocuments.class);

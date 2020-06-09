@@ -13,9 +13,9 @@ public class DatabaseConfiguration {
     public DataSource getDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName(System.getenv().get("datasource.driver-class-name"));
-        dataSourceBuilder.url(System.getenv().get("datasource.url"));
-        dataSourceBuilder.username(System.getenv().get("datasource.username"));
-        dataSourceBuilder.password(System.getenv().get("datasource.password"));
+        dataSourceBuilder.url(System.getenv().get("database.url"));
+        dataSourceBuilder.username(System.getenv().get("database.username"));
+        dataSourceBuilder.password(System.getenv().get("database.password"));
         return dataSourceBuilder.build();
     }
 }
