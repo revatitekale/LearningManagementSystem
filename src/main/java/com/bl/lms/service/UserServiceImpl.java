@@ -1,13 +1,14 @@
 package com.bl.lms.service;
 
+import com.bl.lms.configuration.ApplicationConfig;
+import com.bl.lms.dto.EmailDTO;
 import com.bl.lms.dto.LoginDTO;
 import com.bl.lms.dto.UserDTO;
 import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.User;
 import com.bl.lms.repository.UserRepository;
 import com.bl.lms.util.JwtToken;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import com.bl.lms.util.RabbitMq;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -21,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 
@@ -47,10 +47,10 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private JwtToken jwtToken;
 
     @Autowired
-    private JavaMailSender sender;
+    private RabbitMq rabbitMq;
 
     @Autowired
-    private EntityManager entityManager;
+    private EmailDTO mailDto;
 
     /**
      * @param user
@@ -79,19 +79,25 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     /**
-     * @param user, token
+     * @param userDTO, token
      * @return Method to send reset password request email.
      * @throws MessagingException
      */
-    public void sentEmail(User user, String token) throws MessagingException {
-        String recipientAddress = user.getEmail();
-        MimeMessage message = sender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setTo(recipientAddress);
-        helper.setText("Hii " + user.getFirstName() + "\n" + " You requested to reset password, if YES then click on link put your new password and NO then ignore \n" +
-                "http://localhost:8084/forgetpassword?json={%22password%22:%22" + null + "%22+,%22token%22:" + token + "}");
-        helper.setSubject("Request to Reset Password");
-        sender.send(message);
+    public void sentEmail(UserDTO userDTO) throws MessagingException {
+        try {
+            User user = userRepository.findByEmail(userDTO.getEmail())
+                    .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.USER_NOT_FOUND, "User not found"));
+
+            mailDto.setTo(userDTO.getEmail());
+            mailDto.setBody("Hello " + userDTO.getFirstName() + " Reset your password " +
+                    "Link: http://localhost:8084/resetpassword " + "Use your email and a new password" +
+                    "token: " + jwtToken.generateToken(user.getId()));
+            mailDto.setSubject("Regarding reset password");
+            mailDto.setFrom("revitekale1910@gmail.com");
+            rabbitMq.sendMail(mailDto);
+        } catch (LmsAppException e) {
+            throw new LmsAppException(LmsAppException.exceptionType.DATA_NOT_FOUND, e.getMessage());
+        }
     }
 
     /**

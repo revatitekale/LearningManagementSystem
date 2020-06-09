@@ -5,16 +5,14 @@ import com.bl.lms.dto.*;
 import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.*;
 import com.bl.lms.repository.*;
+import com.bl.lms.util.RabbitMq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,7 +40,11 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
     private ModelMapper modelMapper;
 
     @Autowired
-    private JavaMailSender mailSender;
+    private RabbitMq rabbitMq;
+
+    @Autowired
+    private EmailDTO mailDto;
+
 
     @Autowired
     private CloudinaryConfiguration cloudinaryConfiguration;
@@ -59,7 +61,7 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
         Candidate hiredCandidateModel = hiredCandidateRepository.findById(id)
                 .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.INVALID_ID, "User not found"));
         FellowshipCandidate fellowshipCandidateModel = modelMapper.map(hiredCandidateModel, FellowshipCandidate.class);
-        sendMail(fellowshipCandidateModel);
+        sendMail(hiredCandidateModel);
         return fellowshipCandidateRepository.save(fellowshipCandidateModel);
     }
 
@@ -87,23 +89,22 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
     }
 
     /**
-     * @param fellowshipCandidateModel
+     * @param hiredCandidate
      * @throws MessagingException
      * response(Sent email to candidates)
      */
     @Override
-    public void sendMail(FellowshipCandidate fellowshipCandidateModel) throws MessagingException {
-        String recipientAddress = fellowshipCandidateModel.getEmail();
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setTo(recipientAddress);
-        helper.setText("Hii, " + fellowshipCandidateModel.getFirstName() + " " + fellowshipCandidateModel.getLastName() + " " +
+    public void sendMail(Candidate hiredCandidate) throws MessagingException {
+        mailDto.setTo(hiredCandidate.getEmail());
+        mailDto.setBody("Hii, " + hiredCandidate.getFirstName() + " " + hiredCandidate.getLastName() + " " +
                 "You have been selected for Fellowship Program." + "\n" + "join: " +
                 "\n" + "http://localhost:8084/candidatehiring" +
-                "/status?response=Accepted&email=" + fellowshipCandidateModel.getEmail() + "\n\n"
+                "/status?response=Accepted&email=" + hiredCandidate.getEmail() + "\n\n"
                 + "Reject: " + "\n" + "http://localhost:8084/" +
-                "candidatehiring/status?response=Rejected&email=" + fellowshipCandidateModel.getEmail() + "\n\n");
-        helper.setSubject("Job offer notification");
+                "candidatehiring/status?response=Rejected&email=" + hiredCandidate.getEmail() + "\n\n");
+        mailDto.setFrom("revitekale1910@gmail.com");
+        mailDto.setSubject("Fellowship Job Offer from BridgeLabz");
+        rabbitMq.sendMail(mailDto);
     }
 
     /**

@@ -1,10 +1,13 @@
 package com.bl.lms.service;
 
+import com.bl.lms.configuration.ApplicationConfig;
 import com.bl.lms.dto.CandidateDTO;
+import com.bl.lms.dto.EmailDTO;
 import com.bl.lms.dto.Response;
 import com.bl.lms.exception.LmsAppException;
 import com.bl.lms.model.Candidate;
 import com.bl.lms.repository.CandidateRepository;
+import com.bl.lms.util.RabbitMq;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -32,12 +35,13 @@ public class CandidateServiceImpl implements ICandidateService {
     CandidateRepository candidateRepository;
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private RabbitMq rabbitMq;
+
+    @Autowired
+    private EmailDTO mailDto;
 
     @Autowired
     ModelMapper modelMapper;
-
-    CandidateDTO candidateDTO = new CandidateDTO();
 
     /**
      *
@@ -119,17 +123,16 @@ public class CandidateServiceImpl implements ICandidateService {
      */
     @Override
     public void sendEmail(CandidateDTO candidateDTO) throws MessagingException {
-        String recipientAddress = candidateDTO.getEmail();
-        MimeMessage message = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setTo(recipientAddress);
-        helper.setText("Hii, " + candidateDTO.getFirstName() + " " + candidateDTO.getLastName() + " " +
+        mailDto.setTo(candidateDTO.getEmail());
+        mailDto.setBody("Hii, " + candidateDTO.getFirstName() + " " + candidateDTO.getLastName() + " " +
                 "You have been selected for Fellowship Program." + "\n" + "join: " +
                 "\n" + "http://localhost:8084/candidatehiring" +
                 "/status?response=Accepted&email=" + candidateDTO.getEmail() + "\n\n"
                 + "Reject: " + "\n" + "http://localhost:8084/" +
                 "candidatehiring/status?response=Rejected&email=" + candidateDTO.getEmail() + "\n\n");
-        helper.setSubject("Job offer notification");
+        mailDto.setSubject("Fellowship joining notification");
+        mailDto.setFrom("revitekale1910@gmail.com");
+        rabbitMq.sendMail(mailDto);
     }
 
     /**
