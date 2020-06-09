@@ -89,25 +89,6 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
     }
 
     /**
-     * @param hiredCandidate
-     * @throws MessagingException
-     * response(Sent email to candidates)
-     */
-    @Override
-    public void sendMail(Candidate hiredCandidate) throws MessagingException {
-        mailDto.setTo(hiredCandidate.getEmail());
-        mailDto.setBody("Hii, " + hiredCandidate.getFirstName() + " " + hiredCandidate.getLastName() + " " +
-                "You have been selected for Fellowship Program." + "\n" + "join: " +
-                "\n" + "http://localhost:8084/candidatehiring" +
-                "/status?response=Accepted&email=" + hiredCandidate.getEmail() + "\n\n"
-                + "Reject: " + "\n" + "http://localhost:8084/" +
-                "candidatehiring/status?response=Rejected&email=" + hiredCandidate.getEmail() + "\n\n");
-        mailDto.setFrom("revitekale1910@gmail.com");
-        mailDto.setSubject("Fellowship Job Offer from BridgeLabz");
-        rabbitMq.sendMail(mailDto);
-    }
-
-    /**
      * @param bankDetailsDto
      * @return response(Updated bank details)
      */
@@ -190,4 +171,21 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
         return convertFile;
     }
 
+    /**
+     * @param hiredCandidate
+     * @throws MessagingException
+     * response(Sent email to candidates)
+     */
+    @Override
+    public void sendMail(Candidate hiredCandidate) throws MessagingException {
+        if (hiredCandidate.getStatus().matches(accept))
+            hiredCandidate = hiredCandidateRepository.findByEmail(hiredCandidate.getEmail())
+                    .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.USER_NOT_FOUND, "User not found"));
+            mailDto.setTo(hiredCandidate.getEmail());
+            mailDto.setBody("Hii, " + hiredCandidate.getFirstName() + " " + hiredCandidate.getLastName() + " Congratulations...!!" +
+                    "You have been selected for 16 week Fellowship Program of Bridgelabz" + "\n\n");
+            mailDto.setFrom("revitekale1910@gmail.com");
+            mailDto.setSubject("Fellowship Job Offer");
+            rabbitMq.sendMail(mailDto);
+        }
 }

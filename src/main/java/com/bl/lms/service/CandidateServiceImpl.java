@@ -130,7 +130,7 @@ public class CandidateServiceImpl implements ICandidateService {
                 "/status?response=Accepted&email=" + candidateDTO.getEmail() + "\n\n"
                 + "Reject: " + "\n" + "http://localhost:8084/" +
                 "candidatehiring/status?response=Rejected&email=" + candidateDTO.getEmail() + "\n\n");
-        mailDto.setSubject("Fellowship joining notification");
+        mailDto.setSubject("Fellowship job Offer notification");
         mailDto.setFrom("revitekale1910@gmail.com");
         rabbitMq.sendMail(mailDto);
     }
