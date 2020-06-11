@@ -178,7 +178,7 @@ public class FellowshipCandidateServiceImpl implements IFellowshipCandidateServi
      */
     @Override
     public void sendMail(Candidate hiredCandidate) throws MessagingException {
-        if (hiredCandidate.getStatus().matches(accept))
+        if (hiredCandidate.getStatus() == "accept")
             hiredCandidate = hiredCandidateRepository.findByEmail(hiredCandidate.getEmail())
                     .orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType.USER_NOT_FOUND, "User not found"));
             mailDto.setTo(hiredCandidate.getEmail());

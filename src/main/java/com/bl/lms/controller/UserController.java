@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -36,9 +37,9 @@ public class UserController {
      * @throws Exception
      */
     @PostMapping("/authenticate")
-    public ResponseEntity<ResponseJwt> createAuthenticationToken(@RequestBody LoginDTO loginRequest) throws Exception {
-        String token = userService.getAuthenticationToken(loginRequest);
-        return new ResponseEntity<>(new ResponseJwt(token, ApplicationConfig.getMessageAccessor().getMessage("106")), HttpStatus.CREATED);
+    public ResponseEntity<Response> createAuthenticationToken(@RequestBody LoginDTO loginRequest) throws Exception {
+        Map<Object, Object> value = userService.loginUser(loginRequest);
+        return new ResponseEntity<>(new Response(value, 200,  ApplicationConfig.getMessageAccessor().getMessage("106")), HttpStatus.CREATED);
 
     }
 

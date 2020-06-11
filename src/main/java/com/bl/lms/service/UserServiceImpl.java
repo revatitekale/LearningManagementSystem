@@ -9,6 +9,8 @@ import com.bl.lms.model.User;
 import com.bl.lms.repository.UserRepository;
 import com.bl.lms.util.JwtToken;
 import com.bl.lms.util.RabbitMq;
+import com.bl.lms.util.RedisUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -24,9 +26,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements IUserService, UserDetailsService {
+
+    @Value("${spring.redis.key}")
+    private static final String REDIS_KEY = "key";
 
     @Autowired
     private UserRepository userRepository;
@@ -48,6 +54,9 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     @Autowired
     private RabbitMq rabbitMq;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Autowired
     private EmailDTO mailDto;
@@ -72,9 +81,9 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
      */
     @Override
     public String getPasswordToken(String email) throws MessagingException {
-        User user = userRepository.findByEmail(email);
+        UserDTO user = userRepository.findByEmail(email);
         final String token = jwtToken.generatePasswordResetToken(String.valueOf(user.getId()));
-        sentEmail(user, token);
+        sentEmail(user);
         return token;
     }
 
@@ -101,27 +110,32 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     /**
-     * @param authenticationRequest
+     * @param loginDto
+     * @return response(Method to valid user details and allow for login)
+     */
+    @Override
+    public Map<Object, Object> loginUser(LoginDTO loginDto) throws Exception {
+        User user = userRepository.findByEmail(loginDto.getUsername()).orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType
+                .INVALID_EMAIL_ID, "User not found"));
+        String authenticationToken = getAuthenticationToken(user.getEmail(), loginDto.getPassword());
+        redisUtil.save(REDIS_KEY, user.getEmail(), authenticationToken);
+        return redisUtil.getValue(REDIS_KEY);
+    }
+
+    /**
+     * @param userName, password
      * @return Method to get authentication token
      * @throws Exception
      */
     @Override
-    public String getAuthenticationToken(LoginDTO authenticationRequest) throws Exception {
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = userService
-                .loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtToken.generateToken(userDetails);
-        return token;
-    }
-
-    /**
-     * @param username, password
-     * @return Method to authenticate user.
-     * @throws Exception
-     */
-    private void authenticate(String username, String password) throws Exception {
+    public String getAuthenticationToken(String userName, String password) throws Exception {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    userName, password));
+            final UserDetails userDetails = userService
+                    .loadUserByUsername(userName);
+            final String token = jwtToken.generateToken(userDetails);
+            return token;
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {

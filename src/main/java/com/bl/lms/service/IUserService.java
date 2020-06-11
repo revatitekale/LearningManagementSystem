@@ -8,12 +8,14 @@ import com.bl.lms.model.User;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import java.util.Map;
 
 @Service
 public interface IUserService {
 
         User register(UserDTO user);
+        Map<Object, Object> loginUser(LoginDTO loginDto) throws Exception;
         String getPasswordToken(String email) throws MessagingException, LmsAppException;
         User resetPassword(String password, String token);
-        String getAuthenticationToken(LoginDTO authenticationRequest) throws Exception;
+        String getAuthenticationToken(String userName, String password) throws Exception;
 }
