@@ -111,11 +111,11 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     /**
      * @param loginDto
-     * @return response(Method to valid user details and allow for login)
+     * @return response(Method to login user and store token into redis database)
      */
     @Override
     public Map<Object, Object> loginUser(LoginDTO loginDto) throws Exception {
-        User user = userRepository.findByEmail(loginDto.getUsername()).orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType
+        User user = userRepository.findByEmail(loginDto.getEmail()).orElseThrow(() -> new LmsAppException(LmsAppException.exceptionType
                 .INVALID_EMAIL_ID, "User not found"));
         String authenticationToken = getAuthenticationToken(user.getEmail(), loginDto.getPassword());
         redisUtil.save(REDIS_KEY, user.getEmail(), authenticationToken);
@@ -130,16 +130,12 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     @Override
     public String getAuthenticationToken(String userName, String password) throws Exception {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    userName, password));
-            final UserDetails userDetails = userService
-                    .loadUserByUsername(userName);
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+            final UserDetails userDetails = userService.loadUserByUsername(userName);
             final String token = jwtToken.generateToken(userDetails);
             return token;
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
         }
     }
 
